@@ -20,6 +20,10 @@ const FILTERS: { key: FilterType; label: string; icon: string }[] = [
     { key: 'gratitude', label: 'Gratitude', icon: '🙏' },
     { key: 'spiritual', label: 'Spiritual', icon: '🕉️' },
     { key: 'vulnerability', label: 'Vulnerability', icon: '💝' },
+    { key: 'self-compassion', label: 'Compassion', icon: '💗' },
+    { key: 'opening-up', label: 'Opening Up', icon: '🦋' },
+    { key: 'patience', label: 'Patience', icon: '🌱' },
+    { key: 'letting-go', label: 'Letting Go', icon: '🍃' },
 ];
 
 export default function EntriesListScreen() {

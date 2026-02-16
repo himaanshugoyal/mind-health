@@ -104,6 +104,10 @@ export async function getJournalStats(): Promise<JournalStats> {
         gratitude: 0,
         spiritual: 0,
         vulnerability: 0,
+        'self-compassion': 0,
+        'opening-up': 0,
+        'patience': 0,
+        'letting-go': 0,
     };
 
     all.forEach((e) => byType[e.type]++);

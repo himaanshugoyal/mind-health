@@ -12,75 +12,113 @@ import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
 import { Spacing, FontSizes, FontWeights, Radius } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
-import { getJournalStats, getEntriesByType } from '@/src/storage/journal-storage';
+import { getJournalStats } from '@/src/storage/journal-storage';
 import { JournalType } from '@/src/types/journal';
 
-type ThemeColorKey = 'accent' | 'accentLight' | 'primary' | 'primaryLight' | 'spirit' | 'spiritLight' | 'emotion' | 'emotionLight';
+// ─── Journal Type Config ─────────────────────────────────────────────────────
 
-const JOURNAL_TYPES: {
+type ThemeColorKey = string;
+
+interface JournalTypeConfig {
     icon: string;
     title: string;
-    description: string;
-    color: string;
+    subtitle: string;
+    color: ThemeColorKey;
+    colorLight: ThemeColorKey;
     route: string;
     type: JournalType;
     isPrivate?: boolean;
-}[] = [
-        {
-            icon: '💭',
-            title: 'Thought Journal',
-            description: 'Capture and reframe your thoughts',
-            color: 'accent',
-            route: '/journal/thought',
-            type: 'thought',
-        },
-        {
-            icon: '🙏',
-            title: 'Gratitude Journal',
-            description: '3 things you\'re grateful for today',
-            color: 'primary',
-            route: '/journal/gratitude',
-            type: 'gratitude',
-        },
-        {
-            icon: '🕉️',
-            title: 'Spiritual Journal',
-            description: 'Record spiritual experiences & insights',
-            color: 'spirit',
-            route: '/journal/spiritual',
-            type: 'spiritual',
-        },
-        {
-            icon: '💝',
-            title: 'Vulnerability Journal',
-            description: 'Practice expressing your feelings',
-            color: 'emotion',
-            route: '/journal/vulnerability',
-            type: 'vulnerability',
-            isPrivate: true,
-        },
-    ];
-
-function formatRelativeTime(iso: string): string {
-    const diff = Date.now() - new Date(iso).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'Just now';
-    if (mins < 60) return `${mins}m ago`;
-    const hrs = Math.floor(mins / 60);
-    if (hrs < 24) return `${hrs}h ago`;
-    const days = Math.floor(hrs / 24);
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days} days ago`;
-    return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
+
+const JOURNAL_TYPES: JournalTypeConfig[] = [
+    {
+        icon: '💭',
+        title: 'Thought',
+        subtitle: 'Capture & reframe',
+        color: 'accent',
+        colorLight: 'accentLight',
+        route: '/journal/thought',
+        type: 'thought',
+    },
+    {
+        icon: '🙏',
+        title: 'Gratitude',
+        subtitle: '3 daily blessings',
+        color: 'primary',
+        colorLight: 'primaryLight',
+        route: '/journal/gratitude',
+        type: 'gratitude',
+    },
+    {
+        icon: '🕉️',
+        title: 'Spiritual',
+        subtitle: 'Inner experiences',
+        color: 'spirit',
+        colorLight: 'spiritLight',
+        route: '/journal/spiritual',
+        type: 'spiritual',
+    },
+    {
+        icon: '💝',
+        title: 'Vulnerability',
+        subtitle: 'Express freely',
+        color: 'emotion',
+        colorLight: 'emotionLight',
+        route: '/journal/vulnerability',
+        type: 'vulnerability',
+        isPrivate: true,
+    },
+    {
+        icon: '💗',
+        title: 'Self Compassion',
+        subtitle: 'Be kind to you',
+        color: 'compassion',
+        colorLight: 'compassionLight',
+        route: '/journal/prompt-journal?type=self-compassion',
+        type: 'self-compassion',
+    },
+    {
+        icon: '🦋',
+        title: 'Opening Up',
+        subtitle: 'Speak your truth',
+        color: 'openness',
+        colorLight: 'opennessLight',
+        route: '/journal/prompt-journal?type=opening-up',
+        type: 'opening-up',
+    },
+    {
+        icon: '🌱',
+        title: 'Patience',
+        subtitle: 'Trust the process',
+        color: 'patience',
+        colorLight: 'patienceLight',
+        route: '/journal/prompt-journal?type=patience',
+        type: 'patience',
+    },
+    {
+        icon: '🍃',
+        title: 'Letting Go',
+        subtitle: 'Release & breathe',
+        color: 'release',
+        colorLight: 'releaseLight',
+        route: '/journal/prompt-journal?type=letting-go',
+        type: 'letting-go',
+    },
+];
+
+// ─── Screen ──────────────────────────────────────────────────────────────────
 
 export default function JournalScreen() {
     const { theme } = useAppTheme();
     const router = useRouter();
 
-    const [stats, setStats] = useState({ totalEntries: 0, currentStreak: 0, byType: { thought: 0, gratitude: 0, spiritual: 0, vulnerability: 0 } });
-    const [lastEntries, setLastEntries] = useState<Record<JournalType, string | null>>({
-        thought: null, gratitude: null, spiritual: null, vulnerability: null,
+    const [stats, setStats] = useState({
+        totalEntries: 0,
+        currentStreak: 0,
+        byType: {
+            thought: 0, gratitude: 0, spiritual: 0, vulnerability: 0,
+            'self-compassion': 0, 'opening-up': 0, 'patience': 0, 'letting-go': 0,
+        },
     });
 
     useFocusEffect(
@@ -88,16 +126,7 @@ export default function JournalScreen() {
             let cancelled = false;
             (async () => {
                 const s = await getJournalStats();
-                if (cancelled) return;
-                setStats(s);
-
-                const types: JournalType[] = ['thought', 'gratitude', 'spiritual', 'vulnerability'];
-                const lastMap: Record<string, string | null> = {};
-                for (const t of types) {
-                    const entries = await getEntriesByType(t);
-                    lastMap[t] = entries.length > 0 ? entries[0].createdAt : null;
-                }
-                if (!cancelled) setLastEntries(lastMap as Record<JournalType, string | null>);
+                if (!cancelled) setStats(s);
             })();
             return () => { cancelled = true; };
         }, [])
@@ -124,7 +153,7 @@ export default function JournalScreen() {
                         ✨ Today's Prompt
                     </Text>
                     <Text style={[styles.promptText, { color: theme.text }]}>
-                        What is one thing you'd like to release today, and why are you holding onto it?
+                        What is one thing you'd like to release today, and why?
                     </Text>
                     <TouchableOpacity
                         style={[styles.promptButton, { backgroundColor: theme.primary }]}
@@ -135,73 +164,57 @@ export default function JournalScreen() {
                     </TouchableOpacity>
                 </Card>
 
-                {/* Journal Types */}
+                {/* Journal Types — 2-column compact grid */}
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>
                     Your Journals
                 </Text>
 
-                {JOURNAL_TYPES.map((journal, index) => (
-                    <TouchableOpacity
-                        key={index}
-                        activeOpacity={0.7}
-                        onPress={() => router.push(journal.route as any)}
-                    >
-                        <Card variant="default">
-                            <View style={styles.journalRow}>
-                                <View
-                                    style={[
-                                        styles.journalIcon,
-                                        {
-                                            backgroundColor: theme[(journal.color + 'Light') as ThemeColorKey],
-                                        },
-                                    ]}
+                <View style={styles.grid}>
+                    {JOURNAL_TYPES.map((journal, index) => {
+                        const accentColor = (theme as any)[journal.color] || theme.primary;
+                        const bgColor = (theme as any)[journal.colorLight] || theme.primaryLight;
+                        const count = stats.byType[journal.type] || 0;
+
+                        return (
+                            <TouchableOpacity
+                                key={index}
+                                style={[
+                                    styles.gridCard,
+                                    {
+                                        backgroundColor: bgColor,
+                                        borderColor: accentColor + '25',
+                                    },
+                                ]}
+                                activeOpacity={0.7}
+                                onPress={() => router.push(journal.route as any)}
+                            >
+                                <View style={styles.gridCardTop}>
+                                    <Text style={styles.gridEmoji}>{journal.icon}</Text>
+                                    {journal.isPrivate && (
+                                        <Text style={styles.lockIcon}>🔒</Text>
+                                    )}
+                                </View>
+                                <Text
+                                    style={[styles.gridTitle, { color: theme.text }]}
+                                    numberOfLines={1}
                                 >
-                                    <Text style={styles.journalEmoji}>{journal.icon}</Text>
-                                </View>
-                                <View style={styles.journalInfo}>
-                                    <View style={styles.journalHeader}>
-                                        <Text style={[styles.journalTitle, { color: theme.text }]}>
-                                            {journal.title}
-                                        </Text>
-                                        {journal.isPrivate && (
-                                            <Text style={styles.privateBadge}>🔒</Text>
-                                        )}
-                                    </View>
-                                    <Text
-                                        style={[
-                                            styles.journalDescription,
-                                            { color: theme.textSecondary },
-                                        ]}
-                                    >
-                                        {journal.description}
-                                    </Text>
-                                    <View style={styles.journalMeta}>
-                                        <Text
-                                            style={[styles.metaText, { color: theme.textTertiary }]}
-                                        >
-                                            {stats.byType[journal.type]} entries
-                                        </Text>
-                                        <Text
-                                            style={[styles.metaDot, { color: theme.textTertiary }]}
-                                        >
-                                            •
-                                        </Text>
-                                        <Text
-                                            style={[styles.metaText, { color: theme.textTertiary }]}
-                                        >
-                                            {lastEntries[journal.type]
-                                                ? formatRelativeTime(lastEntries[journal.type]!)
-                                                : 'No entries yet'}
-                                        </Text>
-                                    </View>
-                                </View>
-                                <Text style={[styles.chevron, { color: theme.textTertiary }]}>
-                                    ›
+                                    {journal.title}
                                 </Text>
-                            </View>
-                        </Card>
-                    </TouchableOpacity>
-                ))}
+                                <Text
+                                    style={[styles.gridSubtitle, { color: theme.textSecondary }]}
+                                    numberOfLines={1}
+                                >
+                                    {journal.subtitle}
+                                </Text>
+                                {count > 0 && (
+                                    <Text style={[styles.gridCount, { color: accentColor }]}>
+                                        {count} {count === 1 ? 'entry' : 'entries'}
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
 
                 {/* Stats */}
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>
@@ -243,6 +256,8 @@ export default function JournalScreen() {
     );
 }
 
+// ─── Styles ──────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -282,57 +297,47 @@ const styles = StyleSheet.create({
         marginTop: Spacing.xl,
         marginBottom: Spacing.md,
     },
-    journalRow: {
+
+    // ── 2-column compact grid ──
+    grid: {
         flexDirection: 'row',
-        alignItems: 'center',
-    },
-    journalIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: Radius.md,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: Spacing.md,
-    },
-    journalEmoji: {
-        fontSize: 22,
-    },
-    journalInfo: {
-        flex: 1,
-    },
-    journalHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexWrap: 'wrap',
         gap: Spacing.sm,
     },
-    journalTitle: {
+    gridCard: {
+        width: '48.5%',
+        paddingVertical: Spacing.md,
+        paddingHorizontal: Spacing.md,
+        borderRadius: Radius.lg,
+        borderWidth: 1,
+    },
+    gridCardTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: Spacing.xs,
+    },
+    gridEmoji: {
+        fontSize: 26,
+    },
+    lockIcon: {
+        fontSize: 12,
+    },
+    gridTitle: {
         fontSize: FontSizes.md,
         fontWeight: FontWeights.semibold,
     },
-    privateBadge: {
-        fontSize: 12,
-    },
-    journalDescription: {
-        fontSize: FontSizes.sm,
+    gridSubtitle: {
+        fontSize: FontSizes.xs,
         marginTop: 2,
     },
-    journalMeta: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: Spacing.xs,
-        gap: Spacing.xs,
-    },
-    metaText: {
+    gridCount: {
         fontSize: FontSizes.xs,
-    },
-    metaDot: {
-        fontSize: FontSizes.xs,
-    },
-    chevron: {
-        fontSize: 24,
         fontWeight: FontWeights.medium,
-        marginLeft: Spacing.sm,
+        marginTop: Spacing.xs,
     },
+
+    // ── Stats ──
     statsRow: {
         flexDirection: 'row',
         gap: Spacing.md,

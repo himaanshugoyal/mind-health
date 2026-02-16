@@ -2,7 +2,7 @@
  * Journal types and interfaces for Mind Health.
  */
 
-export type JournalType = 'thought' | 'gratitude' | 'spiritual' | 'vulnerability';
+export type JournalType = 'thought' | 'gratitude' | 'spiritual' | 'vulnerability' | 'self-compassion' | 'opening-up' | 'patience' | 'letting-go';
 
 export type EmotionTag =
     | 'anxious'
@@ -77,11 +77,18 @@ export interface VulnerabilityEntry extends JournalEntryBase {
     isPrivate: true;
 }
 
+export interface PromptJournalEntry extends JournalEntryBase {
+    type: 'self-compassion' | 'opening-up' | 'patience' | 'letting-go';
+    content: string;
+    prompt: string;
+}
+
 export type JournalEntry =
     | ThoughtEntry
     | GratitudeEntry
     | SpiritualEntry
-    | VulnerabilityEntry;
+    | VulnerabilityEntry
+    | PromptJournalEntry;
 
 // ─── AI Reframing Placeholders ───────────────────────────────────────────────
 
@@ -159,6 +166,50 @@ export const SPIRITUAL_PROMPTS = [
 ];
 
 // ─── Vulnerability Prompts ───────────────────────────────────────────────────
+
+export const SELF_COMPASSION_PROMPTS = [
+    'What would you say to a friend feeling what you feel right now?',
+    'Write yourself a permission slip — what do you give yourself permission to do or feel?',
+    'What is one kind thing you can do for yourself today?',
+    'Where in your body do you hold self-criticism? Breathe into that space.',
+    'List 3 things you did well recently, even if they feel small.',
+    'What part of yourself deserves more gentleness?',
+    'Write a love letter to the version of you that\'s struggling.',
+    'What would change if you treated yourself like someone you love?',
+];
+
+export const OPENING_UP_PROMPTS = [
+    'What\'s something you\'ve never told anyone?',
+    'What emotion are you most afraid to show?',
+    'If you could speak without consequence, what would you say?',
+    'What truth have you been avoiding?',
+    'Who do you wish understood you better, and why?',
+    'What would your younger self think of who you are today?',
+    'What conversation are you avoiding, and what makes it scary?',
+    'What do you need to hear from someone right now?',
+];
+
+export const PATIENCE_PROMPTS = [
+    'What part of your life is asking you to slow down?',
+    'What are you rushing that would benefit from more time?',
+    'Where do you feel impatient, and what is that impatience hiding?',
+    'What would it look like to trust the timing of your life?',
+    'Write about something you waited for that was worth the wait.',
+    'What happens in your body when you feel impatient?',
+    'What would today look like if you had no deadlines?',
+    'What seed have you planted that hasn\'t bloomed yet?',
+];
+
+export const LETTING_GO_PROMPTS = [
+    'What are you holding onto that no longer serves you?',
+    'If you could release one thought, what would it be?',
+    'What expectation are you ready to release?',
+    'Write a goodbye letter to something you need to let go of.',
+    'What would your life look like if you stopped trying to control this?',
+    'What regret is weighing on you? Can you offer it forgiveness?',
+    'What old story about yourself are you ready to rewrite?',
+    'Imagine placing your worry on a leaf floating down a stream. Describe it.',
+];
 
 export const VULNERABILITY_PROMPTS = [
     'What\'s one thing you wish you could tell someone?',

@@ -20,6 +20,8 @@ function getPreview(entry: JournalEntry): string {
             return entry.content;
         case 'vulnerability':
             return entry.content;
+        default:
+            return entry.content;
     }
 }
 
@@ -33,6 +35,14 @@ function getTypeInfo(type: JournalEntry['type']): { icon: string; label: string;
             return { icon: '🕉️', label: 'Spiritual', colorKey: 'spirit' };
         case 'vulnerability':
             return { icon: '💝', label: 'Vulnerability', colorKey: 'emotion' };
+        case 'self-compassion':
+            return { icon: '💗', label: 'Compassion', colorKey: 'compassion' };
+        case 'opening-up':
+            return { icon: '🦋', label: 'Opening Up', colorKey: 'openness' };
+        case 'patience':
+            return { icon: '🌱', label: 'Patience', colorKey: 'patience' };
+        case 'letting-go':
+            return { icon: '🍃', label: 'Letting Go', colorKey: 'release' };
     }
 }
 

@@ -109,6 +109,16 @@ export const Colors = {
     sky: Palette.sky500,
     skyLight: Palette.sky50,
 
+    // Journal-specific
+    compassion: '#c47a8a',
+    compassionLight: '#fdf2f4',
+    openness: '#7a9abc',
+    opennessLight: '#f0f5fa',
+    patience: '#a0956e',
+    patienceLight: '#f8f5ee',
+    release: '#7aaa8a',
+    releaseLight: '#f0f7f2',
+
     // Functional
     success: '#5a9a5a',
     warning: Palette.amber500,
@@ -154,6 +164,16 @@ export const Colors = {
     emotionLight: '#352020',
     sky: Palette.sky400,
     skyLight: '#1a2e2e',
+
+    // Journal-specific
+    compassion: '#d49aaa',
+    compassionLight: '#2e1a1e',
+    openness: '#8ab0d0',
+    opennessLight: '#1a2230',
+    patience: '#bab08a',
+    patienceLight: '#242218',
+    release: '#8ac0a0',
+    releaseLight: '#1a2a20',
 
     // Functional
     success: '#6bb86b',

@@ -73,6 +73,10 @@ function AppContent() {
           options={{ headerShown: false, animation: 'slide_from_right' }}
         />
         <Stack.Screen
+          name="journal/prompt-journal"
+          options={{ headerShown: false, animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
           name="journal/entries"
           options={{ headerShown: false, animation: 'slide_from_right' }}
         />
