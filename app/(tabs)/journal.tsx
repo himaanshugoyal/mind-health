@@ -50,6 +50,24 @@ const JOURNAL_TYPES: JournalTypeConfig[] = [
         type: 'gratitude',
     },
     {
+        icon: '📨',
+        title: 'Express',
+        subtitle: 'Release feelings',
+        color: 'emotion',
+        colorLight: 'emotionLight',
+        route: '/journal/express',
+        type: 'express',
+    },
+    {
+        icon: '🪞',
+        title: 'Reflect',
+        subtitle: 'Gentle insight',
+        color: 'primary',
+        colorLight: 'primaryLight',
+        route: '/journal/reflect',
+        type: 'reflect',
+    },
+    {
         icon: '🕉️',
         title: 'Spiritual',
         subtitle: 'Inner experiences',
@@ -118,6 +136,7 @@ export default function JournalScreen() {
         byType: {
             thought: 0, gratitude: 0, spiritual: 0, vulnerability: 0,
             'self-compassion': 0, 'opening-up': 0, 'patience': 0, 'letting-go': 0,
+            'express': 0, 'reflect': 0,
         },
     });
 

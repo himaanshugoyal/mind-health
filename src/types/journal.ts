@@ -2,7 +2,7 @@
  * Journal types and interfaces for Mind Health.
  */
 
-export type JournalType = 'thought' | 'gratitude' | 'spiritual' | 'vulnerability' | 'self-compassion' | 'opening-up' | 'patience' | 'letting-go';
+export type JournalType = 'thought' | 'gratitude' | 'spiritual' | 'vulnerability' | 'self-compassion' | 'opening-up' | 'patience' | 'letting-go' | 'express' | 'reflect';
 
 export type EmotionTag =
     | 'anxious'
@@ -78,7 +78,7 @@ export interface VulnerabilityEntry extends JournalEntryBase {
 }
 
 export interface PromptJournalEntry extends JournalEntryBase {
-    type: 'self-compassion' | 'opening-up' | 'patience' | 'letting-go';
+    type: 'self-compassion' | 'opening-up' | 'patience' | 'letting-go' | 'express' | 'reflect';
     content: string;
     prompt: string;
 }

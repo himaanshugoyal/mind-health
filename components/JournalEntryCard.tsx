@@ -43,6 +43,10 @@ function getTypeInfo(type: JournalEntry['type']): { icon: string; label: string;
             return { icon: '🌱', label: 'Patience', colorKey: 'patience' };
         case 'letting-go':
             return { icon: '🍃', label: 'Letting Go', colorKey: 'release' };
+        case 'express':
+            return { icon: '📨', label: 'Express', colorKey: 'rose' };
+        case 'reflect':
+            return { icon: '🪞', label: 'Reflect', colorKey: 'sage' };
     }
 }
 

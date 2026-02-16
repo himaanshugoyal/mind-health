@@ -18,7 +18,7 @@ import { useAppTheme } from '@/hooks/use-app-theme';
 
 // ─── Config per journal type ─────────────────────────────────────────────────
 
-type PromptType = 'self-compassion' | 'opening-up' | 'patience' | 'letting-go';
+type PromptType = 'self-compassion' | 'opening-up' | 'patience' | 'letting-go' | 'express' | 'reflect';
 
 const CONFIGS: Record<PromptType, {
     title: string;
@@ -65,21 +65,43 @@ const CONFIGS: Record<PromptType, {
         placeholder: 'Write what you\'re ready to release...',
         successMessage: 'Letting go takes trust. You\'re making space for something new.',
     },
+    'express': {
+        title: 'Express',
+        emoji: '📨',
+        prompts: [], // Overridden by params
+        accent: 'rose',
+        accentLight: 'roseLight',
+        placeholder: 'Express yourself freely...',
+        successMessage: 'Releasing this is a gift to yourself.',
+    },
+    'reflect': {
+        title: 'Reflect',
+        emoji: '🪞',
+        prompts: [], // Overridden by params
+        accent: 'sage',
+        accentLight: 'sageLight',
+        placeholder: 'What comes to mind?',
+        successMessage: 'Insight comes from gentle attention.',
+    },
 };
 
 export default function PromptJournalScreen() {
     const { theme } = useAppTheme();
     const insets = useSafeAreaInsets();
     const router = useRouter();
-    const params = useLocalSearchParams<{ type: string }>();
+    const params = useLocalSearchParams<{ type: string; title?: string; prompt?: string }>();
 
     const journalType = (params.type || 'self-compassion') as PromptType;
     const config = CONFIGS[journalType];
     const accentColor = (theme as any)[config.accent] || theme.primary;
     const accentLightColor = (theme as any)[config.accentLight] || theme.primaryLight;
 
+    // Allow overriding title and prompt via params (for Express/Reflect specific options)
+    const titleOverride = params.title ? (params.title as string) : config.title;
+    const promptOverride = params.prompt as string;
+
     const [prompt] = useState(
-        () => config.prompts[Math.floor(Math.random() * config.prompts.length)]
+        () => promptOverride || config.prompts[Math.floor(Math.random() * config.prompts.length)]
     );
     const [content, setContent] = useState('');
     const [tags, setTags] = useState<EmotionTag[]>([]);
@@ -124,7 +146,7 @@ export default function PromptJournalScreen() {
                         <Text style={[styles.backText, { color: accentColor }]}>← Back</Text>
                     </TouchableOpacity>
                     <Text style={[styles.title, { color: theme.text }]}>
-                        {config.emoji} {config.title}
+                        {config.emoji} {titleOverride}
                     </Text>
                     <View style={{ width: 50 }} />
                 </View>

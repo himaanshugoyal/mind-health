@@ -73,6 +73,14 @@ function AppContent() {
           options={{ headerShown: false, animation: 'slide_from_right' }}
         />
         <Stack.Screen
+          name="journal/express"
+          options={{ headerShown: false, animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="journal/reflect"
+          options={{ headerShown: false, animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
           name="journal/thought"
           options={{ headerShown: false, animation: 'slide_from_right' }}
         />

@@ -108,6 +108,8 @@ export async function getJournalStats(): Promise<JournalStats> {
         'opening-up': 0,
         'patience': 0,
         'letting-go': 0,
+        'express': 0,
+        'reflect': 0,
     };
 
     all.forEach((e) => byType[e.type]++);
