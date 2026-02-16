@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -6,43 +6,93 @@ import {
     StyleSheet,
     TouchableOpacity,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Card } from '@/components/Card';
 import { Spacing, FontSizes, FontWeights, Radius } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
 
-const PRACTICES = [
+// ─── Practice Config ──────────────────────────────────────────────────────────
+
+interface PracticeItem {
+    icon: string;
+    title: string;
+    subtitle: string;
+    route: string;
+    color: string;      // accent color key
+    colorLight: string; // background color key
+    isNew?: boolean;
+}
+
+const PRACTICES: PracticeItem[] = [
+    {
+        icon: '🌊',
+        title: 'Emotional Release',
+        subtitle: 'Let it go safely',
+        route: '/practice/meditation?type=emotional-release',
+        color: 'emotion',
+        colorLight: 'emotionLight',
+        isNew: true,
+    },
+    {
+        icon: '🌙',
+        title: 'Sleep',
+        subtitle: 'Drift off peacefully',
+        route: '/practice/meditation?type=sleep',
+        color: 'spirit',
+        colorLight: 'spiritLight',
+        isNew: true,
+    },
     {
         icon: '🧘',
-        title: 'Meditation',
-        subtitle: 'Guided & timer sessions',
-        description: 'Calm your mind with guided meditations or a simple timer',
-        sessions: ['Calm & Focus', 'Emotional Release', 'Body Scan', 'Sleep'],
+        title: 'Calm & Focus',
+        subtitle: 'Center your mind',
+        route: '/practice/meditation?type=calm-focus',
         color: 'primary',
+        colorLight: 'primaryLight',
+        isNew: true,
+    },
+    {
+        icon: '🦶',
+        title: 'Body Scan',
+        subtitle: 'Relax every muscle',
+        route: '/practice/meditation?type=body-scan',
+        color: 'sky',
+        colorLight: 'skyLight',
+        isNew: true,
+    },
+    {
+        icon: '✨',
+        title: 'Spiritual',
+        subtitle: 'Connect within',
+        route: '/practice/meditation?type=spiritual',
+        color: 'spirit',
+        colorLight: 'spiritLight',
+        isNew: true,
     },
     {
         icon: '🌬️',
         title: 'Breathwork',
-        subtitle: '4 techniques available',
-        description: 'Breathing exercises for calm, energy, and emotional release',
-        sessions: ['Box Breathing', '4-7-8 Technique', 'Alternate Nostril', 'Deep Calm'],
+        subtitle: 'Box, 4-7-8, Calm',
+        route: '/practice/breathwork',
         color: 'sky',
+        colorLight: 'skyLight',
     },
     {
-        icon: '✨',
+        icon: '🦋',
         title: 'Affirmations',
-        subtitle: '6 categories',
-        description: 'Personalized affirmations to rewire your thought patterns',
-        sessions: ['Self-Love', 'Patience', 'Letting Go', 'Confidence'],
+        subtitle: 'Swipe for positivity',
+        route: '/practice/affirmations',
         color: 'accent',
+        colorLight: 'accentLight',
     },
     {
         icon: '🕉️',
         title: 'Daily Mantra',
-        subtitle: 'Spiritual wisdom',
-        description: 'A verse chosen for your current emotional state',
-        sessions: ['Bhagavad Gita', 'Vedic Wisdom', 'Universal Truths'],
+        subtitle: 'Wisdom & Focus',
+        route: '/practice/mantra',
         color: 'spirit',
+        colorLight: 'spiritLight',
     },
 ];
 
@@ -52,13 +102,22 @@ const HABITS = [
     { icon: '🙏', label: 'Gratitude', done: false },
     { icon: '💪', label: 'Exercise', done: false },
     { icon: '📖', label: 'Read', done: false },
-    { icon: '💤', label: 'Sleep Early', done: false },
+    { icon: '💤', label: 'Sleep', done: false },
 ];
 
-type ThemeColorKey = 'accent' | 'accentLight' | 'primary' | 'primaryLight' | 'spirit' | 'spiritLight' | 'sky' | 'skyLight';
+// ─── Screen ──────────────────────────────────────────────────────────────────
 
 export default function PracticeScreen() {
     const { theme } = useAppTheme();
+    const router = useRouter();
+
+    const [habits, setHabits] = useState(HABITS);
+
+    const toggleHabit = (index: number) => {
+        const newHabits = [...habits];
+        newHabits[index].done = !newHabits[index].done;
+        setHabits(newHabits);
+    };
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -70,129 +129,74 @@ export default function PracticeScreen() {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Daily Habits */}
+                {/* Habits - Compact */}
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                    Today's Habits
+                    Daily Habits
                 </Text>
-                <Card>
-                    <View style={styles.habitsGrid}>
-                        {HABITS.map((habit, i) => (
+                <View style={[styles.habitsScroll, { borderColor: theme.border }]}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: Spacing.md, paddingHorizontal: Spacing.sm }}>
+                        {habits.map((habit, i) => (
                             <TouchableOpacity
                                 key={i}
                                 style={[
-                                    styles.habitItem,
+                                    styles.habitChip,
                                     {
-                                        backgroundColor: habit.done
-                                            ? theme.primaryLight
-                                            : theme.backgroundSecondary,
-                                        borderColor: habit.done ? theme.primary + '40' : theme.border,
-                                    },
+                                        backgroundColor: habit.done ? theme.primary + '15' : theme.backgroundSecondary,
+                                        borderColor: habit.done ? theme.primary : theme.border,
+                                    }
                                 ]}
-                                activeOpacity={0.7}
+                                onPress={() => toggleHabit(i)}
                             >
                                 <Text style={styles.habitIcon}>{habit.icon}</Text>
-                                <Text
-                                    style={[
-                                        styles.habitLabel,
-                                        {
-                                            color: habit.done ? theme.primary : theme.textSecondary,
-                                            fontWeight: habit.done ? FontWeights.semibold : FontWeights.normal,
-                                        },
-                                    ]}
-                                >
+                                <Text style={[
+                                    styles.habitLabel,
+                                    { color: habit.done ? theme.primary : theme.textSecondary }
+                                ]}>
                                     {habit.label}
                                 </Text>
-                                {habit.done && (
-                                    <Text style={[styles.habitCheck, { color: theme.primary }]}>✓</Text>
-                                )}
                             </TouchableOpacity>
                         ))}
-                    </View>
-                    <View style={styles.habitProgress}>
-                        <View style={[styles.progressBar, { backgroundColor: theme.border }]}>
-                            <View
-                                style={[
-                                    styles.progressFill,
-                                    {
-                                        backgroundColor: theme.primary,
-                                        width: `${(HABITS.filter((h) => h.done).length / HABITS.length) * 100}%`,
-                                    },
-                                ]}
-                            />
-                        </View>
-                        <Text style={[styles.progressText, { color: theme.textSecondary }]}>
-                            {HABITS.filter((h) => h.done).length}/{HABITS.length} completed
-                        </Text>
-                    </View>
-                </Card>
+                    </ScrollView>
+                </View>
 
-                {/* Practice Cards */}
-                <Text style={[styles.sectionTitle, { color: theme.text }]}>
-                    Practices
+                {/* Practices - 2 Column Grid */}
+                <Text style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.xl }]}>
+                    All Practices
                 </Text>
 
-                {PRACTICES.map((practice, index) => (
-                    <TouchableOpacity key={index} activeOpacity={0.7}>
-                        <Card variant="elevated">
-                            <View style={styles.practiceHeader}>
-                                <View
-                                    style={[
-                                        styles.practiceIcon,
-                                        {
-                                            backgroundColor: theme[(practice.color + 'Light') as ThemeColorKey],
-                                        },
-                                    ]}
-                                >
-                                    <Text style={styles.practiceEmoji}>{practice.icon}</Text>
-                                </View>
-                                <View style={styles.practiceInfo}>
-                                    <Text style={[styles.practiceTitle, { color: theme.text }]}>
-                                        {practice.title}
-                                    </Text>
-                                    <Text
-                                        style={[
-                                            styles.practiceSubtitle,
-                                            { color: theme.textSecondary },
-                                        ]}
-                                    >
-                                        {practice.subtitle}
-                                    </Text>
-                                </View>
-                                <Text style={[styles.chevron, { color: theme.textTertiary }]}>
-                                    ›
-                                </Text>
-                            </View>
-                            <Text
+                <View style={styles.grid}>
+                    {PRACTICES.map((item, index) => {
+                        const accent = (theme as any)[item.color] || theme.primary;
+                        const bg = (theme as any)[item.colorLight] || theme.primaryLight;
+
+                        return (
+                            <TouchableOpacity
+                                key={index}
+                                activeOpacity={0.7}
                                 style={[
-                                    styles.practiceDescription,
-                                    { color: theme.textSecondary },
+                                    styles.gridCard,
+                                    { backgroundColor: bg, borderColor: accent + '20' }
                                 ]}
+                                onPress={() => router.push(item.route as any)}
                             >
-                                {practice.description}
-                            </Text>
-                            <View style={styles.sessionTags}>
-                                {practice.sessions.map((session, i) => (
-                                    <View
-                                        key={i}
-                                        style={[
-                                            styles.sessionTag,
-                                            { backgroundColor: theme[(practice.color + 'Light') as ThemeColorKey] },
-                                        ]}
-                                    >
-                                        <Text
-                                            style={[
-                                                styles.sessionTagText,
-                                                { color: theme[practice.color as ThemeColorKey] },
-                                            ]}
-                                        >
-                                            {session}
-                                        </Text>
-                                    </View>
-                                ))}
-                            </View>
-                        </Card>
-                    </TouchableOpacity>
-                ))}
+                                <View style={styles.cardHeader}>
+                                    <Text style={styles.cardEmoji}>{item.icon}</Text>
+                                    {item.isNew && (
+                                        <View style={[styles.newBadge, { backgroundColor: accent }]}>
+                                            <Text style={styles.newText}>NEW</Text>
+                                        </View>
+                                    )}
+                                </View>
+                                <Text style={[styles.cardTitle, { color: theme.text }]} numberOfLines={1}>
+                                    {item.title}
+                                </Text>
+                                <Text style={[styles.cardSubtitle, { color: theme.textSecondary }]} numberOfLines={1}>
+                                    {item.subtitle}
+                                </Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </View>
 
                 <View style={{ height: 100 }} />
             </ScrollView>
@@ -201,23 +205,18 @@ export default function PracticeScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    scrollContent: {
-        paddingHorizontal: Spacing.xl,
-    },
+    container: { flex: 1 },
+    scrollContent: { paddingHorizontal: Spacing.xl },
     sectionTitle: {
         fontSize: FontSizes.lg,
         fontWeight: FontWeights.bold,
         marginBottom: Spacing.md,
     },
-    habitsGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: Spacing.sm,
+    habitsScroll: {
+        borderRadius: Radius.lg,
+        paddingVertical: Spacing.sm,
     },
-    habitItem: {
+    habitChip: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: Spacing.sm,
@@ -226,80 +225,44 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         gap: Spacing.xs,
     },
-    habitIcon: {
-        fontSize: 16,
-    },
-    habitLabel: {
-        fontSize: FontSizes.sm,
-    },
-    habitCheck: {
-        fontSize: 12,
-        fontWeight: FontWeights.bold,
-    },
-    habitProgress: {
-        marginTop: Spacing.lg,
-        gap: Spacing.sm,
-    },
-    progressBar: {
-        height: 6,
-        borderRadius: Radius.full,
-        overflow: 'hidden',
-    },
-    progressFill: {
-        height: '100%',
-        borderRadius: Radius.full,
-    },
-    progressText: {
-        fontSize: FontSizes.sm,
-    },
-    practiceHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: Spacing.sm,
-    },
-    practiceIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: Radius.md,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: Spacing.md,
-    },
-    practiceEmoji: {
-        fontSize: 22,
-    },
-    practiceInfo: {
-        flex: 1,
-    },
-    practiceTitle: {
-        fontSize: FontSizes.md,
-        fontWeight: FontWeights.semibold,
-    },
-    practiceSubtitle: {
-        fontSize: FontSizes.sm,
-        marginTop: 2,
-    },
-    chevron: {
-        fontSize: 24,
-        fontWeight: FontWeights.medium,
-    },
-    practiceDescription: {
-        fontSize: FontSizes.sm,
-        lineHeight: 20,
-        marginBottom: Spacing.md,
-    },
-    sessionTags: {
+    habitIcon: { fontSize: 14 },
+    habitLabel: { fontSize: FontSizes.sm, fontWeight: FontWeights.medium },
+
+    // Grid
+    grid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: Spacing.sm,
+        gap: Spacing.md,
     },
-    sessionTag: {
-        paddingHorizontal: Spacing.md,
-        paddingVertical: Spacing.xs,
-        borderRadius: Radius.full,
+    gridCard: {
+        width: '47.5%', // Slightly less than 50% to account for gap
+        padding: Spacing.md,
+        borderRadius: Radius.lg,
+        borderWidth: 1,
     },
-    sessionTagText: {
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: Spacing.sm,
+    },
+    cardEmoji: { fontSize: 24 },
+    newBadge: {
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: Radius.xs,
+    },
+    newText: {
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: FontWeights.bold,
+    },
+    cardTitle: {
+        fontSize: FontSizes.md,
+        fontWeight: FontWeights.semibold,
+        marginBottom: 2,
+    },
+    cardSubtitle: {
         fontSize: FontSizes.xs,
-        fontWeight: FontWeights.medium,
     },
 });
