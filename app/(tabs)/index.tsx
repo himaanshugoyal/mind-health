@@ -1,98 +1,286 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Card } from '@/components/Card';
+import { MoodSelector } from '@/components/MoodSelector';
+import { QuickAction } from '@/components/QuickAction';
+import { StreakBadge } from '@/components/StreakBadge';
+import { Spacing, FontSizes, FontWeights, Radius, Shadows, Palette } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/use-app-theme';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 5) return 'Good night';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  if (hour < 21) return 'Good evening';
+  return 'Good night';
+}
+
+function getDayMessage(): string {
+  const messages = [
+    'Every breath is a fresh start 🌱',
+    'You are exactly where you need to be 🌿',
+    'Small steps lead to big changes 🌸',
+    'Be gentle with yourself today 🦋',
+    'This moment is all that matters 🌅',
+    'You are growing, even in stillness 🌳',
+    'Let go of what you cannot control 🍃',
+  ];
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+  );
+  return messages[dayOfYear % messages.length];
+}
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const { theme } = useAppTheme();
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const [selectedMood, setSelectedMood] = useState<number | null>(null);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + Spacing.lg },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerText}>
+            <Text style={[styles.greeting, { color: theme.textSecondary }]}>
+              {getGreeting()} ✨
+            </Text>
+            <Text style={[styles.name, { color: theme.text }]}>
+              Welcome back
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.sosButton, { backgroundColor: theme.emotionLight }]}
+            onPress={() => router.push('/sos')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.sosIcon}>🆘</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Daily Intention */}
+        <Card variant="elevated" style={{ backgroundColor: theme.primaryLight }}>
+          <Text style={[styles.intentionLabel, { color: theme.primary }]}>
+            ✦ Today's Intention
+          </Text>
+          <Text style={[styles.intentionText, { color: theme.text }]}>
+            {getDayMessage()}
+          </Text>
+        </Card>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Quick Actions
+          </Text>
+          <View style={styles.quickActions}>
+            <QuickAction
+              icon="🧘"
+              label="Breathe"
+              color={Palette.sage500}
+              backgroundColor={theme.primaryLight}
+              onPress={() => { }}
+            />
+            <QuickAction
+              icon="📝"
+              label="Journal"
+              color={Palette.amber500}
+              backgroundColor={theme.accentLight}
+              onPress={() => router.push('/(tabs)/journal')}
+            />
+            <QuickAction
+              icon="🧘‍♂️"
+              label="Meditate"
+              color={Palette.twilight500}
+              backgroundColor={theme.spiritLight}
+              onPress={() => router.push('/(tabs)/practice')}
+            />
+            <QuickAction
+              icon="🙏"
+              label="Gratitude"
+              color={Palette.rose500}
+              backgroundColor={theme.emotionLight}
+              onPress={() => { }}
+            />
+          </View>
+        </View>
+
+        {/* Mood Check-in */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Mood Check-in
+          </Text>
+          <Card>
+            <MoodSelector
+              selectedMood={selectedMood}
+              onSelect={setSelectedMood}
+            />
+            {selectedMood && (
+              <TouchableOpacity
+                style={[styles.moodContinue, { backgroundColor: theme.primary }]}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.moodContinueText}>Continue →</Text>
+              </TouchableOpacity>
+            )}
+          </Card>
+        </View>
+
+        {/* Streaks */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            Your Streaks
+          </Text>
+          <View style={styles.streaks}>
+            <StreakBadge icon="📝" count={5} label="Journal" isActive />
+            <StreakBadge icon="🧘" count={3} label="Meditate" isActive />
+            <StreakBadge icon="🙏" count={7} label="Gratitude" isActive />
+            <StreakBadge icon="💪" count={0} label="Exercise" isActive={false} />
+          </View>
+        </View>
+
+        {/* Daily Insight */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>
+            AI Insight
+          </Text>
+          <Card variant="elevated" style={{ backgroundColor: theme.spiritLight }}>
+            <Text style={[styles.insightIcon]}>💡</Text>
+            <Text style={[styles.insightText, { color: theme.text }]}>
+              You've been journaling consistently for 5 days! Studies show that
+              regular journaling reduces stress by 25%. Keep going!
+            </Text>
+          </Card>
+        </View>
+
+        {/* Affirmation */}
+        <Card variant="outlined">
+          <Text style={[styles.affirmationLabel, { color: theme.textTertiary }]}>
+            Today's Affirmation
+          </Text>
+          <Text style={[styles.affirmation, { color: theme.text }]}>
+            "I release what I cannot control and trust the journey ahead."
+          </Text>
+        </Card>
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: Spacing.xl,
+  },
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 8,
+    marginBottom: Spacing.xl,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  headerText: {
+    flex: 1,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  greeting: {
+    fontSize: FontSizes.md,
+    fontWeight: FontWeights.medium,
+  },
+  name: {
+    fontSize: FontSizes['2xl'],
+    fontWeight: FontWeights.bold,
+    marginTop: 2,
+  },
+  sosButton: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sosIcon: {
+    fontSize: 20,
+  },
+  intentionLabel: {
+    fontSize: FontSizes.sm,
+    fontWeight: FontWeights.semibold,
+    marginBottom: Spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  intentionText: {
+    fontSize: FontSizes.lg,
+    fontWeight: FontWeights.medium,
+    lineHeight: 26,
+  },
+  section: {
+    marginTop: Spacing.xl,
+  },
+  sectionTitle: {
+    fontSize: FontSizes.lg,
+    fontWeight: FontWeights.bold,
+    marginBottom: Spacing.md,
+  },
+  quickActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: Spacing.sm,
+  },
+  moodContinue: {
+    marginTop: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderRadius: Radius.md,
+    alignItems: 'center',
+  },
+  moodContinueText: {
+    color: '#fff',
+    fontSize: FontSizes.md,
+    fontWeight: FontWeights.semibold,
+  },
+  streaks: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: Spacing.sm,
+  },
+  insightIcon: {
+    fontSize: 24,
+    marginBottom: Spacing.sm,
+  },
+  insightText: {
+    fontSize: FontSizes.md,
+    lineHeight: 24,
+  },
+  affirmationLabel: {
+    fontSize: FontSizes.xs,
+    fontWeight: FontWeights.semibold,
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+    marginBottom: Spacing.sm,
+  },
+  affirmation: {
+    fontSize: FontSizes.lg,
+    fontWeight: FontWeights.medium,
+    fontStyle: 'italic',
+    lineHeight: 28,
   },
 });
