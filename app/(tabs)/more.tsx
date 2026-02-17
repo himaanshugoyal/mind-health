@@ -10,6 +10,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 const MENU_ITEMS = [
     { icon: 'person-circle', label: 'Profile', subtitle: 'Your wellness journey', route: '/more/profile' },
     { icon: 'checkmark-circle', label: 'Habits', subtitle: 'Track your daily habits', route: '/habits' },
+    { icon: 'people', label: 'Social & Connection', subtitle: 'Build meaningful relationships', route: '/social' },
     { icon: 'bar-chart', label: 'Mood Tracker', subtitle: 'Check in & view trends', route: '/(tabs)/insights' },
     { icon: 'chatbubbles', label: 'AI Life Coach', subtitle: 'Chat with your AI companion', route: null },
     { icon: 'heart', label: 'Emotional Release', subtitle: 'Let go of what weighs you down', route: null },

@@ -112,6 +112,18 @@ function AppContent() {
           name="more/profile"
           options={{ headerShown: false, animation: 'slide_from_right' }}
         />
+        <Stack.Screen
+          name="social/index"
+          options={{ headerShown: false, animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="social/relationships"
+          options={{ headerShown: false, animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="social/challenges"
+          options={{ headerShown: false, animation: 'slide_from_right' }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

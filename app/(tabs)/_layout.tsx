@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform, StyleSheet } from 'react-native';
@@ -77,7 +78,7 @@ export default function TabLayout() {
         options={{
           title: 'More',
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={26} name="ellipsis.circle.fill" color={color} />
+            <Ionicons size={26} name="ellipsis-horizontal-circle" color={color} />
           ),
         }}
       />
