@@ -104,6 +104,14 @@ function AppContent() {
           name="journal/entries"
           options={{ headerShown: false, animation: 'slide_from_right' }}
         />
+        <Stack.Screen
+          name="habits/index"
+          options={{ headerShown: false, animation: 'slide_from_right' }}
+        />
+        <Stack.Screen
+          name="more/profile"
+          options={{ headerShown: false, animation: 'slide_from_right' }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

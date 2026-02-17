@@ -1,20 +1,22 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Platform,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Card } from '@/components/Card';
 import { MoodSelector } from '@/components/MoodSelector';
 import { QuickAction } from '@/components/QuickAction';
 import { StreakBadge } from '@/components/StreakBadge';
-import { Spacing, FontSizes, FontWeights, Radius, Shadows, Palette } from '@/constants/theme';
+import { AddHabitModal } from '@/components/habits/AddHabitModal';
+import { HabitList } from '@/components/habits/HabitList';
+import { FontSizes, FontWeights, Palette, Radius, Spacing } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
+import { useHabits } from '@/hooks/useHabits';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -46,6 +48,11 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
+  const [isHabitModalVisible, setIsHabitModalVisible] = useState(false);
+
+  const { habits, addHabit, toggleHabitCompletion } = useHabits();
+
+  const activeStreaks = habits.filter(h => h.streak > 0).length;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -85,6 +92,13 @@ export default function HomeScreen() {
           </Text>
         </Card>
 
+        {/* Habits Section */}
+        <HabitList
+          habits={habits}
+          onToggleHabit={toggleHabitCompletion}
+          onAddHabit={() => setIsHabitModalVisible(true)}
+        />
+
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
@@ -96,7 +110,7 @@ export default function HomeScreen() {
               label="Breathe"
               color={Palette.sage500}
               backgroundColor={theme.primaryLight}
-              onPress={() => { }}
+              onPress={() => router.push('/practice/breathwork')}
             />
             <QuickAction
               icon="📝"
@@ -117,7 +131,7 @@ export default function HomeScreen() {
               label="Gratitude"
               color={Palette.rose500}
               backgroundColor={theme.emotionLight}
-              onPress={() => { }}
+              onPress={() => router.push('/journal/gratitude')}
             />
           </View>
         </View>
@@ -143,16 +157,15 @@ export default function HomeScreen() {
           </Card>
         </View>
 
-        {/* Streaks */}
+        {/* Streaks (Legacy + Active Habits Summary) */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
-            Your Streaks
+            Your Progress
           </Text>
           <View style={styles.streaks}>
+            <StreakBadge icon="🔥" count={activeStreaks} label="Active Habits" isActive={activeStreaks > 0} />
             <StreakBadge icon="📝" count={5} label="Journal" isActive />
             <StreakBadge icon="🧘" count={3} label="Meditate" isActive />
-            <StreakBadge icon="🙏" count={7} label="Gratitude" isActive />
-            <StreakBadge icon="💪" count={0} label="Exercise" isActive={false} />
           </View>
         </View>
 
@@ -182,6 +195,12 @@ export default function HomeScreen() {
 
         <View style={{ height: 100 }} />
       </ScrollView>
+
+      <AddHabitModal
+        visible={isHabitModalVisible}
+        onClose={() => setIsHabitModalVisible(false)}
+        onAdd={addHabit}
+      />
     </View>
   );
 }

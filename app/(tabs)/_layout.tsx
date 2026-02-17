@@ -4,7 +4,6 @@ import { Platform, StyleSheet } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Radius } from '@/constants/theme';
 import { useAppTheme } from '@/hooks/use-app-theme';
 
 export default function TabLayout() {
@@ -74,11 +73,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="more"
         options={{
-          title: 'Profile',
+          title: 'More',
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={26} name="person.fill" color={color} />
+            <IconSymbol size={26} name="ellipsis.circle.fill" color={color} />
           ),
         }}
       />

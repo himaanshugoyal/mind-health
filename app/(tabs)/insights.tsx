@@ -1,15 +1,17 @@
+import { Card } from '@/components/Card';
+import { ConsistencyHeatmap } from '@/components/habits/ConsistencyHeatmap';
+import { ProgressGarden } from '@/components/habits/ProgressGarden';
+import { ScreenHeader } from '@/components/ScreenHeader';
+import { FontSizes, FontWeights, Radius, Spacing } from '@/constants/theme';
+import { useAppTheme } from '@/hooks/use-app-theme';
+import { useHabits } from '@/hooks/useHabits';
 import React from 'react';
 import {
-    View,
-    Text,
     ScrollView,
     StyleSheet,
-    Dimensions,
+    Text,
+    View
 } from 'react-native';
-import { ScreenHeader } from '@/components/ScreenHeader';
-import { Card } from '@/components/Card';
-import { Spacing, FontSizes, FontWeights, Radius } from '@/constants/theme';
-import { useAppTheme } from '@/hooks/use-app-theme';
 
 const MOOD_DATA = [
     { day: 'Mon', value: 4, emoji: '🙂' },
@@ -54,7 +56,16 @@ type ThemeKey = 'primary' | 'primaryLight' | 'spirit' | 'spiritLight' | 'accent'
 
 export default function InsightsScreen() {
     const { theme } = useAppTheme();
+    const { habits } = useHabits();
     const maxBarHeight = 80;
+
+    // Aggregate completed dates for heatmap
+    const allCompletedDates = habits.flatMap(h => h.completedDates);
+    // Unique dates
+    const uniqueDates = [...new Set(allCompletedDates)].sort();
+
+    // Total streak sum for garden
+    const totalStreak = habits.reduce((acc, h) => acc + h.streak, 0);
 
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -66,6 +77,14 @@ export default function InsightsScreen() {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
+                {/* Progress Garden */}
+                <ProgressGarden totalStreak={totalStreak} />
+
+                {/* Consistency Heatmap */}
+                <View style={styles.section}>
+                    <ConsistencyHeatmap completedDates={uniqueDates} />
+                </View>
+
                 {/* Weekly Mood Chart */}
                 <Text style={[styles.sectionTitle, { color: theme.text }]}>
                     Mood This Week
@@ -208,6 +227,9 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: Spacing.xl,
+    },
+    section: {
+        marginTop: Spacing.lg,
     },
     sectionTitle: {
         fontSize: FontSizes.lg,
